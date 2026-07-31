@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Name is required'],
       trim: true,
     },
+
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -16,33 +17,69 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email'],
     },
+
     password: {
       type: String,
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
-      select: false, // never returned in queries by default
+      select: false, // Never returned in queries by default
     },
+
     role: {
       type: String,
       enum: ['student', 'admin'],
       default: 'student',
     },
+
+    // Optional profile picture
+    avatar: {
+      type: String,
+      default: '',
+    },
+
+    // Gamification
+    xp: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    level: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
+
+    currentStreak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    longestStreak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
-  { timestamps: true } // adds createdAt, updatedAt automatically
+  {
+    timestamps: true,
+  }
 );
 
-// Hash password before saving (only if it was modified)
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+// Hash password before saving
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) {
+    return;
+  }
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
-// Instance method to compare entered password with hashed password
+// Compare entered password with hashed password
 userSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return bcrypt.compare(enteredPassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);
