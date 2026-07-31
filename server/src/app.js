@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.routes.js';
 import sessionRoutes from "./routes/session.routes.js";
+import reflectionRoutes from "./routes/reflection.routes.js";
 import { notFound, errorHandler } from './middlewares/error.middleware.js';
 
 const app = express();
@@ -30,6 +31,7 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use("/api/session", sessionRoutes);
+app.use("/api/reflection", reflectionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
